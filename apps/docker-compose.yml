@@ -6,6 +6,7 @@ services:
     image: postgres:16-alpine
     container_name: smarthome-postgres
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
         - "5432:5432"
