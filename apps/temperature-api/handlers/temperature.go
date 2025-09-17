@@ -76,5 +76,8 @@ func (h *TemperatureHandler) GetTemperatureByLocation(c *gin.Context) {
 
 // getRandomTemperature returns a random temperature between -35 and 75
 func getRandomTemperature() float64 {
-	return math.Round((-35.0+rand.Float64()*75.0)*100) / 100
+	const minTemp = -35.0
+	const maxTemp = 75.0
+	val := minTemp + rand.Float64()*(maxTemp-minTemp)
+	return math.Round(val*100) / 100
 }
