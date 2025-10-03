@@ -1,0 +1,31 @@
+@startuml C4_Elements
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Состояние AS IS
+
+Person(personAlias1, "Пользователь 1", "")
+Person(personAlias2, "Пользователь 2", "")
+Person(personAlias3, "Пользователь N", "")
+
+Person(engineer, "Специалист по установке")
+
+Container(clientContainerAlias1, "Клиент 1", "Веб-клиент")
+Container(clientContainerAlias2, "Клиент N", "Веб-клиент")
+Container(systemAlias, "smart home", "Go", "Монолитное приложение")
+System(sensorAlias1, "Датчик 1", "Модуль управления отоплением")
+System(sensorAlias2, "Датчик N", "Модуль управления отоплением")
+
+
+Rel(personAlias1, clientContainerAlias1, "HTTP")
+Rel(personAlias3, clientContainerAlias2, "HTTP")
+
+Rel(clientContainerAlias1, systemAlias, "HTTP")
+Rel(clientContainerAlias2, systemAlias, "HTTP")
+
+Rel(systemAlias, sensorAlias1, "HTTP")
+Rel(systemAlias, sensorAlias2, "HTTP")
+
+Rel(engineer, systemAlias, "настройка")
+Rel(engineer, sensorAlias1, "настройка")
+Rel(engineer, sensorAlias2, "настройка")
+@enduml
