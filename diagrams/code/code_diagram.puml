@@ -1,0 +1,75 @@
+@startuml C4_Code_Diagram
+
+struct DeviceType {
+  +id: String
+  +name: String
+  +value: String
+}
+
+struct Location {
+  +id: String
+  +name: String
+  +value: String
+}
+
+struct Device {
+  +id: String
+  +name: String
+  +status: Boolean
+  +typeId: String
+  +locationId: String
+}
+
+struct GetDeviceDto {
+  +id: String
+  +name: String
+  +status: Boolean
+  +type: String
+  +location: String
+}
+
+struct CreateDeviceDto {
+  +name: String
+  +typeId: String
+  +locationId: String
+}
+
+interface DeviceHandler {
+  -service: DeviceService
+
+  +GetDeviceById(id: String): GetDeviceDto
+  +FindDevices(query: struct): GetDeviceDto[]
+
+  +CreateDevice(dto: DeviceDto): Boolean
+  +UpdateDevice(dto: DeviceDto): Boolean
+  +DeleteDevice(id: String): Boolean
+}
+
+interface DeviceService {
+  -deviceRepository: DeviceRepository
+
+  +GetById(id: String): Device
+  +Find(query: struct): Device[]
+
+  +Create(device: Device): Boolean
+  +Update(device: Device): Boolean
+  +Delete(id: String): Boolean
+}
+
+interface DeviceRepository {
+  +Get(id: String): Nullable<Device>
+  +Find(query: struct): Device[]
+
+  +Save(device: Device): Boolean
+  +Update(device: Device): Boolean
+  +Delete(id: String): Boolean
+}
+
+DeviceHandler ..> GetDeviceDto: "Возвращает"
+CreateDeviceDto ..> DeviceHandler : "Принимает"
+DeviceHandler --> DeviceService: "Вызывает"
+DeviceService --> DeviceRepository: "Использует"
+DeviceRepository ..> Device: "Работает с"
+Device ..> DeviceType: "Использует"
+Device ..> Location: "Использует"
+@enduml

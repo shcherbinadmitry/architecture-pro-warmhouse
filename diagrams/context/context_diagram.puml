@@ -1,9 +1,9 @@
 @startuml C4_Elements
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-title Состояние системы (AS IS)
+title Диаграмма контекста системы "Умный дом" (AS IS)
 
-Person(person, "Пользователь", "Владелец дома")
+Person(user, "Пользователь", "Владелец дома")
 Person(engineer, "Специалист по установке")
 
 Container(webclient, "Веб-клиент", "Позволяет просматривать температуру и управлять отоплением")
@@ -11,7 +11,7 @@ Container(monolith, "Монолитное приложение", "Go", "Упра
 System_Ext(sensor, "Датчик", "Датчик температуры")
 System_Ext(heater, "Отопление", "Система отопления")
 
-Rel(person, webclient, "HTTP", "Web-клиент")
+Rel(user, webclient, "HTTP", "Web-клиент")
 Rel(webclient, monolith, "HTTP")
 Rel(monolith, sensor, "HTTP", "получение температуры")
 Rel(monolith, heater, "HTTP", "включение/выключение отопления")
