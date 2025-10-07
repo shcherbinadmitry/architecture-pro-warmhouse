@@ -1,0 +1,406 @@
+openapi: 3.0.0
+
+info:
+  title: Smart Home API
+  version: 0.0.1
+  description: API управления устройствами
+
+servers:
+  - url: http://localhost:8081
+    description: Device Service
+
+tags:
+  - name: Device
+    description: Device API
+
+paths:
+  /health:
+    get:
+      tags:
+        - Device
+      summary: Статус сервиса
+      responses:
+        '200':
+          description: status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [OK]
+                example:
+                  status: OK
+  /api/v1/modules:
+    get:
+      summary: Получить список модулей
+      security:
+        - auth: [ ]
+      tags:
+        - Device
+      responses:
+        '200':
+          description: список модулей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Module'
+    post:
+      summary: Зарегистрировать модуль
+      tags:
+        - Device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateModuleDto'
+      responses:
+        '201':
+          description: Модуль зарегистрирован
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+  /api/v1/modules/{id}:
+    get:
+      summary: Получить модуль по id
+      security:
+        - auth: [ ]
+      tags:
+        - Device
+      responses:
+        '200':
+          description: информация о модуле
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Module'
+    patch:
+      summary: Обновить модуль
+      security:
+        - auth: [ ]
+      tags:
+        - Device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateModuleDto'
+      responses:
+        '200':
+          description: модуль обновлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    enum: [OK]
+  /api/v1/devices:
+    get:
+      summary: Получить список устройств
+      security:
+        - auth: [ ]
+      tags:
+        - Device
+      parameters:
+        - in: query
+          name: house_id
+          schema:
+            type: string
+            format: uuid
+          description: Поиск по id дома
+        - in: query
+          name: status
+          schema:
+            type: string
+          description: Фильтр по статусу
+      responses:
+        '200':
+          description: Список устройств
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Device'
+    post:
+      summary: Зарегистрировать новое устройство
+      security:
+        - auth: [ ]
+      tags:
+        - Device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeviceDto'
+      responses:
+        '201':
+          description: Устройство зарегистрировано
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+  /api/v1/devices/{id}:
+    get:
+      summary: Получить устройство по ID
+      security:
+        - auth: [ ]
+      tags:
+        - Device
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Устройство
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '404':
+          description: Устройство не найдено
+    patch:
+      summary: Обновить устройство
+      security:
+        - auth: [ ]
+      tags:
+        - Device
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeviceDto'
+      responses:
+        '200':
+          description: Обновлено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    enum: [OK]
+  /api/v1/scenarios:
+    get:
+      summary: Список сценариев
+      security:
+        - auth: [ ]
+      tags:
+        - Device
+      responses:
+        '200':
+          description: Сценарии
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Scenario'
+    post:
+      summary: Создать сценарий
+      security:
+        - auth: [ ]
+      tags:
+        - Device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScenarioDto'
+      responses:
+        '201':
+          description: Сценарий создан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+  /api/v1/scenarios/{id}/execute:
+    post:
+      summary: Выполнить сценарий автоматизации
+      security:
+        - auth: [ ]
+      tags:
+        - Device
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scenario_id:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: Устройство приняло команду
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    enum: [OK]
+
+components:
+  securitySchemes:
+    auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Module:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        serial_number:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+
+    CreateModuleDto:
+      type: object
+      properties:
+        name:
+          type: string
+        serial_number:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+
+    UpdateModuleDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+
+    DeviceType:
+      type: object
+      properties:
+        name:
+          type: string
+        information:
+          type: string
+        type:
+          type: string
+
+    Device:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        serial_number:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        device_type:
+          $ref: '#/components/schemas/DeviceType'
+
+    CreateDeviceDto:
+      type: object
+      required:
+        - name
+        - serial_number
+        - device_type_id
+      properties:
+        serial_number:
+          type: string
+        device_type_id:
+          type: integer
+        name:
+          type: string
+        module_id:
+          type: string
+          format: uuid
+
+    UpdateDeviceDto:
+      type: object
+      properties:
+        name:
+          type: string
+        module_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+
+    Scenario:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        status:
+          type: string
+        script:
+          type: string
+
+    CreateScenarioDto:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+        script:
+          type: string
+
+
+

@@ -1,0 +1,156 @@
+openapi: 3.0.0
+
+info:
+  title: Smart Home API
+  version: 0.0.1
+  description: API уведомлений
+
+servers:
+  - url: http://localhost:8082
+    description: Notification Service
+
+tags:
+  - name: Notification
+    description: Notification API
+
+paths:
+  /health:
+    get:
+      tags:
+        - Notification
+      summary: Статус сервиса
+      responses:
+        '200':
+          description: status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [OK]
+                example:
+                  status: OK
+  /api/v1/notifications:
+    get:
+      summary: Получить уведомления
+      tags:
+        - Notification
+      security:
+        - auth: []
+      responses:
+        '200':
+          description: Список уведомлений
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+    post:
+      summary: Отправить уведомление
+      tags:
+        - Notification
+      security:
+        - auth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNotificationDto'
+      responses:
+        '201':
+          description: Уведомление отправлено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+  /api/v1/notifications/{id}:
+    get:
+      summary: Получить уведомление по id
+      tags:
+        - Notification
+      security:
+        - auth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Уведомление
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '404':
+          description: Уведомление не найдено
+    patch:
+      summary: Обновить уведомление
+      tags:
+        - Notification
+      security:
+        - auth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        '200':
+          description: Обновлено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    enum: [ OK ]
+
+components:
+  securitySchemes:
+    auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        payload:
+          type: string
+        status:
+          type: string
+
+    CreateNotificationDto:
+      type: object
+      properties:
+        payload:
+          type: string
+
+
+
