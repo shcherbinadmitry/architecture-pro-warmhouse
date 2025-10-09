@@ -1,0 +1,47 @@
+@startuml
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Диаграмма компонентов - Device Service (TO BE)
+
+Container(api_gateway, "API Gateway", "Kong")
+ContainerDb(device_db, "Device service Database", "PostgreSQL")
+Container(message_bus, "Message Bus", "Apache Kafka")
+
+Container_Boundary(device_service, "Device service - Go") {
+
+Component(management_api, "Device management API", "REST", "REST API для управления устройствами")
+Component(control_api, "Device control API", "REST", "API для отправки команд устройствам")
+Component(integration_api, "Device integration API", "REST", "API для интеграции с IoT устройствами")
+
+Component(device_management_service, "Device service", "Реализует бизнес-логику по CRUD операциям с утройствами")
+Component(device_control_service, "Device control Service", "Реализует бизнес-логику по управлению утройствами")
+Component(iot_integration, "Device Integration", "Интеграция с устройствами c различными IoT протоколами")
+Component(message_publisher, "Message Publisher", "Публикация событий в Kafka")
+
+Component(repository, "Repository Layer", "Репозиторий для работы с данными в PostgreSQL")
+}
+
+System_Ext(iot_devices, "IoT устройства")
+System_Ext(telemetry_service, "Telemetry Service", "Go")
+System_Ext(notification_service, "Notification Service", "Flask")
+
+Rel(api_gateway, management_api, "Маршрутизация", "HTTP")
+Rel(api_gateway, control_api, "Маршрутизация", "HTTP")
+Rel(api_gateway, integration_api, "Маршрутизация", "HTTP")
+
+Rel(repository, device_db, "Запись/чтение", "PostgreSQL")
+
+Rel(management_api, device_management_service, "Бизнес логика")
+Rel(control_api, device_control_service, "Отправка команд устройствам")
+Rel(integration_api, iot_integration, "Интеграция с IoT устройствами")
+Rel(iot_integration, iot_devices, "Отправка команд и мониторинг IoT", "AMQP, HTTP, Zigbee, ect")
+
+Rel(device_management_service, repository, "Вызывает")
+Rel(device_control_service, repository, "Вызывает")
+
+Rel(device_management_service, message_publisher, "Публикация событий")
+Rel(message_publisher, message_bus, "События устройств", "Генерирует")
+Rel(message_bus, telemetry_service, "События", "Потребляет")
+Rel(message_bus, notification_service, "События", "Потребляет")
+@enduml

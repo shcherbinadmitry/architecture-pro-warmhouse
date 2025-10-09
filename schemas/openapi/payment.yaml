@@ -1,0 +1,210 @@
+openapi: 3.0.0
+
+info:
+  title: Smart Home API
+  version: 0.0.1
+  description: API платежей
+
+servers:
+  - url: http://localhost:8083
+    description: Payment Service
+
+tags:
+  - name: Payment
+    description: Payment API
+
+paths:
+  /health:
+    get:
+      tags:
+        - Payment
+      summary: Статус сервиса
+      responses:
+        '200':
+          description: status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [OK]
+                example:
+                  status: OK
+  /api/v1/products:
+    get:
+      summary: Получить список продуктов (подписок, тарифов)
+      security:
+        - auth: [ ]
+      tags:
+        - Payment
+      responses:
+        '200':
+          description: Список тарифов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /api/v1/invoices:
+    get:
+      summary: Получить счета пользователя
+      security:
+        - auth: []
+      responses:
+        '200':
+          description: Список счетов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invoice'
+    post:
+      summary: Создать счёт
+      security:
+        - auth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInvoiceDto'
+      responses:
+        '201':
+          description: Счёт создан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+  /api/v1/payments:
+    post:
+      summary: Process Payment
+      security:
+        - auth: []
+      description: Обработать платёж
+      tags:
+        - Payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentDto'
+      responses:
+        '201':
+          description: Платеж обработан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+  /api/v1/payments/{id}:
+    post:
+      summary: Process Payment
+      security:
+        - auth: []
+      description: Обработать платёж
+      tags:
+        - Payment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Данные платежа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+
+components:
+  securitySchemes:
+    auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        price:
+          type: number
+
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        amount:
+          type: string
+        date:
+          type: string
+        status:
+          type: string
+        product_id:
+          type: string
+          format: uuid
+
+    CreateInvoiceDto:
+      type: object
+      properties:
+        amount:
+          type: string
+        date:
+          type: string
+        status:
+          type: string
+        product_id:
+          type: string
+          format: uuid
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+        status:
+          type: string
+        invoice_id:
+          type: string
+          format: uuid
+
+    CreatePaymentDto:
+      type: object
+      properties:
+        date:
+          type: string
+        status:
+          type: string
+        invoice_id:
+          type: string
+          format: uuid
+
+
+
+
+
+

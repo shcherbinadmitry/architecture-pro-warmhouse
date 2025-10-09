@@ -1,0 +1,57 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Диаграмма контейнеров "Умный дом" (TO BE)
+
+Person(user, "Владелец дома", "Выбирает модули умного дома (устройства), сам подключает, настраивает сценарии работы, просматривает телеметрию")
+Person(support, "Команда по обслуживанию клиентов", "Предоставляют поддержку пользователям")
+
+System_Boundary(smart_home, "Умный дом") {
+    Container(web_client, "Веб-приложение", "React.js", "Клиент для работы с платформой")
+    Container(support_client, "Портал поддержки", "React UI/CRM", "Платформа для команды технической поддержки")
+    Container(api_gateway, "API Gateway", "Kong", "Общий узел для доступа к микросервисам")
+
+    Container(user_service, "User Service", "Nest.js", "Управление пользователями")
+    Container(device_service, "Device Service", "Go", "Управление устройствами")
+    Container(payment_service, "Payment Service", "Go", "Управление платежами, подписками")
+    Container(telemetry_service, "Telemetry & Analytics Service", "Go", "Сбор телеметрии и аналитики")
+    Container(notification_service, "Notification Service", "Flask", "Уведомления")
+
+    Container(message_bus, "Message Bus", "Apache Kafka")
+    ContainerDb(user_db, "User Service Database", "PostgreSQL", "Пользователи, профили, настройки")
+    ContainerDb(device_db, "Device Service Database", "PostgreSQL", "Устройства, конфигурации, статус")
+    ContainerDb(telemetry_db, "Telemetry Service Database", "Prometheus", "Показания датчиков")
+    ContainerDb(analytics_db, "Analytics Service Database", "Clickhouse", "Аналитика")
+    ContainerDb(payment_db, "Payment Service Database", "PostgreSQL", "Продукты, платежи, клиенты")
+    ContainerDb(notification_db, "Notification Service Database", "PostgreSQL", "Уведомления")
+
+}
+
+System_Ext(payment_system, "Платёжная система", "Внешние провайдеры для платежных систем")
+System_Ext(iot_devices, "IoT устройства в домах")
+
+Rel(user, web_client, "Пользуется")
+Rel(support, support_client, "Пользуется")
+Rel(web_client, api_gateway, "API")
+Rel(support_client, api_gateway, "API")
+Rel(api_gateway, device_service, "Управление устройствами")
+Rel(api_gateway, user_service, "Авторизация/аутентификация")
+Rel(api_gateway, telemetry_service, "Получение телеметрии")
+Rel(api_gateway, payment_service, "Платежи")
+
+Rel(device_service, iot_devices, "Управление")
+Rel(telemetry_service, iot_devices, "Сбор телеметрии")
+Rel(payment_service, payment_system, "Обработка платежей")
+Rel(device_service, device_db, "Читает/записывает")
+Rel(telemetry_service, telemetry_db, "Читает/записывает")
+Rel(telemetry_service, analytics_db, "Читает/записывает аналитику")
+Rel(user_service, user_db, "Читает/записывает")
+Rel(notification_service, notification_db, "Читает/записывает")
+Rel(payment_service, payment_db, "Читает/записывает")
+
+Rel(device_service, message_bus, "Команды/события")
+Rel(telemetry_service, message_bus, "Телеметрия/события")
+Rel(payment_system, message_bus, "Платежи/события")
+Rel(message_bus, notification_service, "Потребляет")
+Rel(notification_service, user, "Сообщает", )
+@enduml

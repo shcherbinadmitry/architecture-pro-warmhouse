@@ -1,0 +1,131 @@
+@startuml
+entity "User" as user {
+  + id [PK]
+  --
+  * email
+  * password
+
+  * first_name
+  * last_name
+  * middle_name
+  * phone
+}
+
+entity "Home" as home {
+  + id [PK]
+  # user_id [FK]
+  --
+  * name
+  * address
+}
+
+entity "Location" as location {
+  + id [PK]
+  # home_id [FK]
+  --
+  * name
+}
+
+entity "Module" as module {
+  + id [PK]
+  # location_id [FK]
+  --
+  * name
+  * serial_number
+  * status
+  * type
+}
+
+entity "Scenario" as scenario {
+  + id [PK]
+  # module_id [FK]
+  --
+  * name
+  * script
+  * status
+}
+
+entity "Device" as device {
+  + id [PK]
+  # module_id [FK]
+  --
+  * name
+  * serial_number
+  * status
+}
+
+entity "DeviceType"" as device_type {
+  + id [PK]
+  --
+  * name
+  * information
+  * type
+}
+
+entity "Telemetry" as telemetry {
+  + id [PK]
+  # device_id [FK]
+  --
+  * value
+  * date
+}
+
+
+entity "Product" as product {
+  + id [PK]
+  --
+  * name
+  * price
+}
+
+
+entity "Invoice" as invoice {
+  + id [PK]
+  # user_id [FK]
+  # product_id [FK]
+  --
+  * amount
+  * date
+  * status
+}
+
+entity "Payment" as payment {
+  + id [PK]
+  # invoice_id [FK]
+  --
+  * status
+  * date
+}
+
+entity "Push tokens" as push {
+  + id [PK]
+  # user_id [FK]
+  --
+  * token
+}
+
+entity "Sent notifications" as sent_notif {
+  + id [PK]
+  # user_id [FK]
+  --
+  * payload
+  * type
+  * status
+}
+
+user ||--{ home
+home ||--{ location
+location ||--{ module
+module ||--{ device
+module ||--o{ scenario
+device }|--|{ device_type
+device ||--o{ telemetry
+
+user ||--o{ invoice
+product ||--o{ invoice
+invoice }--o{ payment
+
+user ||--o{ push
+user ||--o{ sent_notif
+
+@enduml

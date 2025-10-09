@@ -1,0 +1,161 @@
+openapi: 3.0.0
+
+info:
+  title: Smart Home API
+  version: 0.0.1
+  description: API управления пользователями
+
+servers:
+  - url: http://localhost:8085
+    description: User Service
+
+tags:
+  - name: User
+    description: User API
+
+paths:
+  /health:
+    get:
+      tags:
+        - User
+      summary: Статус сервиса
+      responses:
+        '200':
+          description: status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [OK]
+                example:
+                  status: OK
+  /api/v1/users:
+    get:
+      summary: Список пользователей
+      security:
+        - auth: [ ]
+      tags:
+        - User
+      responses:
+        '200':
+          description: Список пользователей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /api/v1/register:
+    summary: Регистрация пользователя
+    post:
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDto'
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+  /api/v1/login:
+    post:
+      summary: Авторизация пользователя
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        '200':
+          description: Успешная авторизация
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+
+  /api/v1/me:
+    get:
+      summary: Данные о текущем пользователе
+      security:
+        - auth: [ ]
+      tags:
+        - User
+      responses:
+        '200':
+          description: Данные о текущем пользователе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+components:
+  securitySchemes:
+    auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+
+    RegisterDto:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+
+    LoginDto:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+
+
+

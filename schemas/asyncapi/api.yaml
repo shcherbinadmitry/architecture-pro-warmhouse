@@ -1,0 +1,83 @@
+asyncapi: 3.0.0
+info:
+  title: Kafka API
+  version: 0.0.1
+  description: API для получения телеметрии и уведомлений
+
+servers:
+  kafkaServer:
+    host: localhost:8092
+    description: Kafka broker
+    protocol: kafka
+
+operations:
+  receive_telemetry:
+    action: receive
+    channel:
+      $ref: '#/channels/receive_telemetry'
+  send_telemetry:
+    action: send
+    channel:
+      $ref: '#/channels/receive_telemetry'
+
+  receive_notification:
+    action: receive
+    channel:
+      $ref: '#/channels/receive_notification'
+  send_notification:
+    action: send
+    channel:
+      $ref: '#/channels/send_notification'
+
+channels:
+  receive_telemetry:
+    description: Канал для получения телеметрии с датчиков
+    address: receive_telemetry
+    messages:
+      telemetry_entry:
+        $ref: '#/components/messages/telemetry_entry'
+
+  send_telemetry:
+    description: Канал для отправки  телеметрии с датчиков
+    address: send_telemetry
+    messages:
+      telemetry_entry:
+        $ref: '#/components/messages/telemetry_entry'
+
+  receive_notification:
+    description: Канал для получения уведомлений
+    address: receive_notification
+    messages:
+      notification:
+        $ref: '#/components/messages/notification'
+
+  send_notification:
+    description: Канал для отправки уведомлений
+    address: send_notification
+    messages:
+      notification:
+        $ref: '#/components/messages/notification'
+
+components:
+  messages:
+    telemetry_entry:
+      payload:
+        type: object
+        properties:
+          device_id:
+            type: string
+            format: uuid
+          value:
+            type: string
+            description: Значение датчика
+
+    notification:
+      payload:
+        type: object
+        properties:
+          user_id:
+            type: string
+            format: uuid
+          payload:
+            type: object
+            description: Полезная информация в уведомлении

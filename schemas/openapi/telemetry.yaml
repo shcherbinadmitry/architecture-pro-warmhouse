@@ -1,0 +1,132 @@
+openapi: 3.0.0
+
+info:
+  title: Smart Home API
+  version: 0.0.1
+  description: API телеметрии
+
+servers:
+  - url: http://localhost:8084
+    description: Telemetry Service
+
+tags:
+  - name: Telemetry
+    description: Telemetry API
+
+paths:
+  /health:
+    get:
+      tags:
+        - Telemetry
+      summary: Статус сервиса
+      responses:
+        '200':
+          description: status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [OK]
+                example:
+                  status: OK
+  /api/v1/telemetry:
+    get:
+      summary: Получить показания телеметрии
+      tags:
+        - Telemetry
+      parameters:
+        - name: device_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Телеметрия
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Telemetry'
+    post:
+      summary: Отправить новые показания телеметрии
+      tags:
+        - Telemetry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTelemetryDto'
+      responses:
+        '201':
+          description: Запись о телеметрии создана
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+  /api/v1/analytics:
+    get:
+      summary: Получить аналитику
+      tags:
+        - Telemetry
+      parameters:
+        - name: device_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Аналитика
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analytics'
+
+
+components:
+  schemas:
+    Telemetry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        device_id:
+          type: string
+          format: uuid
+        value:
+          type: string
+
+    CreateTelemetryDto:
+      type: object
+      properties:
+        device_id:
+          type: string
+          format: uuid
+        value:
+          type: string
+
+    Analytics:
+      type: object
+      properties:
+        total_readings:
+          type: number
+        last_reading_date:
+          type: string
+          format: 'date-time'
+        average_value:
+          type: string
+
+
+
+
